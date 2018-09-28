@@ -11,7 +11,7 @@ class PID:
         self.sum_err    = INIT
         self.max_ki = 0.5
 
-    def tune(self, kp, ki, kd, bias=0):
+    def tune(self, (kp, ki, kd), bias=0):
         self.kp = self.limit(kp, self.max_kp)
         self.ki = self.limit(ki, self.max_ki)
         self.kd = self.limit(kd, self.max_ki)

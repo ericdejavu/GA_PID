@@ -61,3 +61,8 @@ class GeneticAlgorithm:
                 self.population_pool = self.population_pool[:i]
                 break
         self.waterfall(CONST_K)
+
+    def run(self):
+        self.next_generation()
+        self.reaper()
+        return self.dna
