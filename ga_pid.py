@@ -10,7 +10,7 @@ class GAPID:
         Adam_dna = {}
         Eva_dna = {}
         self.GA.population_pool(Eva_dna)
-        self.GA.dna = Adam_dna
+        self.GA.init_dna(Adam_dna)
 
     def get_score(self):
         self.current_score = self.tune_pid()
