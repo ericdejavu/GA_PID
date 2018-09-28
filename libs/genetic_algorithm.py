@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from const_str import *
-import random,json,MySQLdb
+import random,data_record
 
 class GeneticAlgorithm:
     def __init__(self):
@@ -15,29 +15,10 @@ class GeneticAlgorithm:
         self.grow_mode          = LINEAR_INC
         self.tickets            = {'waterfall_cnt':INIT}
 
-    def __del__(self):
-        self.db.close()
-
-    def db_init(self):
-        self.columns = self.dna.keys()
-        with open('private/mysql.json') as f:
-            json.dump(sqli,f)
-        self.db = MySQLdb.connect(sqli['host'],sqli['user'],sqli['passwd'],sqli['db'],charset=sqli['charset'])
-        self.cursor = db.cursor()
-        create_table_body = ', '.join([column + COLUMN_TYPE for column in columns])
-        create_table_sql = CREATE_TABLE_FH + create_table_body[:-2] + CREATE_TABLE_END
-        self.cursor.execute(create_table_sql)
-
-    def save(self):
-        try:
-            save_body_keys = ', '.join([column for column in self.columns])[:-2]
-            save_body_values = ', '.join([str(value) for self.dna[column] in self.columns])[:-2]
-            insert_sql = INSERT_HEAD+'('+save_body_keys+INSERT_MID+'('+save_body_values+INSERT_END
-            self.cursor.execute(insert_sql)
-            self.db.commit()
-        except:
-            print '[-] db is not init'
-
+    # call before run function blow
+    def init_dna(self,dna):
+        self.dna = dna
+        self.data_record = data_record.DataRecord(dna)
 
     def mutant(self):
         self.mutantion = random.uniform(-2,2)
@@ -78,15 +59,16 @@ class GeneticAlgorithm:
             self.tickets['waterfall_cnt'] += WATERFALL_INC
 
 
-
     def reaper(self):
-        self.save()
+        self.data_record.save(self.dna)
         sorted(self.population_pool,lambda x,y:cmp(x['score'],y['score']))
         for i,dna in enumerate(self.population_pool[:]):
             if dna['score'] < self.tense_score:
                 self.population_pool = self.population_pool[:i]
                 break
         self.waterfall(CONST_K)
+
+
 
     def run(self):
         self.next_generation()
