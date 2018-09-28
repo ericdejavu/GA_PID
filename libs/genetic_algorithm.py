@@ -1,5 +1,6 @@
+# -*- coding:utf-8 -*-
 from const_str import *
-import random
+import random,json,MySQLdb
 
 class GeneticAlgorithm:
     def __init__(self):
@@ -13,6 +14,30 @@ class GeneticAlgorithm:
         self.control_mode       = TCP_CONGESTION_CONTROL
         self.grow_mode          = LINEAR_INC
         self.tickets            = {'waterfall_cnt':INIT}
+
+    def __del__(self):
+        self.db.close()
+
+    def db_init(self):
+        self.columns = self.dna.keys()
+        with open('private/mysql.json') as f:
+            json.dump(sqli,f)
+        self.db = MySQLdb.connect(sqli['host'],sqli['user'],sqli['passwd'],sqli['db'],charset=sqli['charset'])
+        self.cursor = db.cursor()
+        create_table_body = ', '.join([column + COLUMN_TYPE for column in columns])
+        create_table_sql = CREATE_TABLE_FH + create_table_body[:-2] + CREATE_TABLE_END
+        self.cursor.execute(create_table_sql)
+
+    def save(self):
+        try:
+            save_body_keys = ', '.join([column for column in self.columns])[:-2]
+            save_body_values = ', '.join([str(value) for self.dna[column] in self.columns])[:-2]
+            insert_sql = INSERT_HEAD+'('+save_body_keys+INSERT_MID+'('+save_body_values+INSERT_END
+            self.cursor.execute(insert_sql)
+            self.db.commit()
+        except:
+            print '[-] db is not init'
+
 
     def mutant(self):
         self.mutantion = random.uniform(-2,2)
@@ -55,6 +80,7 @@ class GeneticAlgorithm:
 
 
     def reaper(self):
+        self.save()
         sorted(self.population_pool,lambda x,y:cmp(x['score'],y['score']))
         for i,dna in enumerate(self.population_pool[:]):
             if dna['score'] < self.tense_score:
