@@ -1,6 +1,7 @@
+# -*- coding:utf-8 -*-
 import json,MySQLdb
 
-
+# data is important so no deletetion and update
 class DataRecord:
     def __init__(self,dna):
         self.columns = dna.keys()
@@ -9,8 +10,17 @@ class DataRecord:
         self.db = MySQLdb.connect(sqli['host'],sqli['user'],sqli['passwd'],sqli['db'],charset=sqli['charset'])
         self.cursor = db.cursor()
         create_table_body = ', '.join([column + COLUMN_TYPE for column in columns])
-        create_table_sql = CREATE_TABLE_FH + create_table_body[:-2] + CREATE_TABLE_END
+        create_table_sql = CREATE_TABLE_FH + create_table_body + CREATE_TABLE_END
         self.cursor.execute(create_table_sql)
+        self.db.commit()
+        self.cursor.execute(TABLE_STRUCTURE)
+        columns = self.cursor.fetch()
+        add_columns = set(self.columns) - set(columns)
+        for column in add_columns:
+            alter_table = ALTER_TABLE_HEAD + '(' + column + COLUMN_TYPE + ');'
+            self.cursor(alter_table)
+            self.db.commit()
+
 
     def __del__(self):
         self.db.close()
