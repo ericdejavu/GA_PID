@@ -18,7 +18,7 @@ class DataRecord:
         add_columns = set(self.columns) - set(columns)
         for column in add_columns:
             alter_table = ALTER_TABLE_HEAD + '(' + column + COLUMN_TYPE + ');'
-            self.cursor(alter_table)
+            self.cursor.execute(alter_table)
             self.db.commit()
 
 
