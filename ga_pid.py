@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from pid import *
 from genetic_algorithm import *
 from const_str import *

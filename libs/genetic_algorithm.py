@@ -33,7 +33,7 @@ class GeneticAlgorithm:
             for key in self.dna.keys():
                 self.dna[key] = random.choice(parent)[key]
         self.generation_count += 1
-        if random.random() < 0.2:
+        if random.random() < MUTANT_RATE:
             self.mutant()
 
     # act as tcp control
