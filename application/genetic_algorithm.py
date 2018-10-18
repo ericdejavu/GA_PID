@@ -6,8 +6,8 @@ class GeneticAlgorithm:
     def __init__(self):
         self.population_pool    = []
         self.max_population     = MAX_POPULATION
-        self.dna                = {}
         self.score              = INIT
+        self.dna                = {ORIGIN:{}, BEHAVE:{SCORE:self.score}}
         self.mutantion          = INIT
         self.tense_score        = TENSE_SCORE
         self.generation_count   = INIT
@@ -16,13 +16,16 @@ class GeneticAlgorithm:
         self.tickets            = {'waterfall_cnt':INIT}
 
     # call before run function blow
-    def init_dna(self,dna):
-        self.dna = dna
-        self.data_record = data_record.DataRecord(dna)
+    # def init_dna(self,dna):
+    #     self.dna = dna
+    #     self.data_record = data_record.DataRecord(dna)
+
+    def random_mutante(self):
+        return random.choice(self.dna[ORIGIN].keys())
 
     def mutant(self):
         self.mutantion = random.uniform(-2,2)
-        random.choice(self.dna) += self.mutantion
+        self.dna[ORIGIN][self.random_mutante()] += self.mutantion
 
 
     def next_generation(self):
@@ -44,7 +47,7 @@ class GeneticAlgorithm:
 
             if self.grow_mode == LINEAR_INC:
                 self.tense_score += k*TENSE_SCORE
-            elif self.grow_mode = EXPONENTIAL_GROWTH:
+            elif self.grow_mode == EXPONENTIAL_GROWTH:
                 self.tense_score += TENSE_SCORE**(1/k)
 
             if self.tense_score > MAX_SCORE:
@@ -60,10 +63,10 @@ class GeneticAlgorithm:
 
 
     def reaper(self):
-        self.data_record.save(self.dna)
-        sorted(self.population_pool,lambda x,y:cmp(x['score'],y['score']))
+        # self.data_record.save(self.dna)
+        sorted(self.population_pool,lambda x,y:cmp(x[BEHAVE][SCORE],y[BEHAVE][SCORE]))
         for i,dna in enumerate(self.population_pool[:]):
-            if dna['score'] < self.tense_score:
+            if dna[BEHAVE][SCORE] < self.tense_score:
                 self.population_pool = self.population_pool[:i]
                 break
         self.waterfall(CONST_K)

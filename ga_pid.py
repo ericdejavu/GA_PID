@@ -1,17 +1,19 @@
 # -*- coding:utf-8 -*-
-from pid import *
-from genetic_algorithm import *
-from const_str import *
+from libs import *
+from fake.sim_io import *
+
+
 
 class GAPID:
     def __init__(self):
         self.GA = GeneticAlgorithm()
         self.PID = PID()
+        self.graph = Graph()
         # give two possible pid value to optimize GA
         Adam_dna = {}
         Eva_dna = {}
-        self.GA.population_pool(Eva_dna)
-        self.GA.init_dna(Adam_dna)
+        self.GA.population_pool.append(Eva_dna)
+        # self.GA.init_dna(Adam_dna)
 
     def get_score(self):
         self.current_score = self.tune_pid()
