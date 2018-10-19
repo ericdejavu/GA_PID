@@ -15,6 +15,7 @@ class DataRecord:
         self.db.commit()
         self.cursor.execute(TABLE_STRUCTURE)
         columns = self.cursor.fetch()
+        # columns dynamic
         add_columns = set(self.columns) - set(columns)
         for column in add_columns:
             alter_table = ALTER_TABLE_HEAD + '(' + column + COLUMN_TYPE + ');'
