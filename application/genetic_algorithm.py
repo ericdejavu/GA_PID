@@ -7,7 +7,14 @@ class GeneticAlgorithm:
         self.population_pool    = []
         self.max_population     = MAX_POPULATION
         self.score              = INIT
-        self.dna                = {ORIGIN:{}, BEHAVE:{SCORE:self.score}}
+        self.dna                = {
+            ORIGIN:{},
+            BEHAVE:{
+                STATIC_SCORE:self.score,
+                EXECUTABLE_SCORE:self.score,
+                DYNAMIC_STABLE_SCORE:self.score
+            }
+        }
         self.mutantion          = INIT
         self.tense_score        = TENSE_SCORE
         self.generation_count   = INIT
@@ -16,9 +23,9 @@ class GeneticAlgorithm:
         self.tickets            = {'waterfall_cnt':INIT}
 
     # call before run function blow
-    # def init_dna(self,dna):
-    #     self.dna = dna
-    #     self.data_record = data_record.DataRecord(dna)
+    def init_dna(self,dna):
+        self.dna = dna
+        self.data_record = data_record.DataRecord(dna)
 
     def random_mutante(self):
         return random.choice(self.dna[ORIGIN].keys())
