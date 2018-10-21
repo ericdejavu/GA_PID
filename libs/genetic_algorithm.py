@@ -36,7 +36,10 @@ class GeneticAlgorithm:
     def mutant(self):
         origin_param = self.random_mutante()
         self.mutantion = random.uniform(-self.max_params[origin_param],self.max_params[origin_param])
-        self.dna[ORIGIN][origin_param] += self.mutantion
+        if self.dna[ORIGIN][origin_param] < 0:
+            self.dna[ORIGIN][origin_param] += abs(self.mutantion)
+        else:
+            self.dna[ORIGIN][origin_param] += self.mutantion
 
 
     def next_generation(self):
@@ -52,7 +55,7 @@ class GeneticAlgorithm:
                     self.mutant()
                 for key in self.dna[ORIGIN].keys():
                     if self.dna[ORIGIN][key] != father[ORIGIN][key]:
-                        self.population_pool.append(self.dna)
+                        self.population_pool.append(copy.deepcopy(self.dna))
                         print 'next_generation:',self.dna[ORIGIN]
                         return
 
@@ -87,13 +90,17 @@ class GeneticAlgorithm:
         print 'tense_score:',self.tense_score
         # print self.population_pool
         for dna in self.population_pool[:]:
-            if dna[BEHAVE][STATIC_SCORE] < self.tense_score and len(self.population_pool) > 1:
+            if dna[BEHAVE][STATIC_SCORE] < self.tense_score and len(self.population_pool) > MIN_POPULATION:
                 print 'STATIC_SCORE:',dna[BEHAVE][STATIC_SCORE]
                 self.population_pool.remove(dna)
+
         dna_pool = [population[ORIGIN] for population in self.population_pool]
+        dna_pool.reverse()
         for dna in self.population_pool[:]:
             dna_pool.pop()
             if dna[ORIGIN] in dna_pool:
+                print 'pool:',dna_pool
+                print 'population_pool:',self.population_pool
                 print 'ORIGIN:',dna[ORIGIN]
                 self.population_pool.remove(dna)
 

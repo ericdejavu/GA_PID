@@ -74,7 +74,7 @@ class GAPID:
 
     def run_test(self):
         datas = []
-        for j in range(0,1000):
+        for j in range(20):
             lx,ly = [],[]
             print j,' --------------'
             print self.GA.dna[ORIGIN]
