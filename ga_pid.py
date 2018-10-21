@@ -10,10 +10,24 @@ class GAPID:
         self.PID = PID()
         self.graph = Graph()
         # give two possible pid value to optimize GA
-        Adam_dna = {}
-        Eva_dna = {}
+        Adam_dna = {
+            ORIGIN:{'kp':0.4,'ki':0.0001,'kd':1.0},
+            BEHAVE:{
+                STATIC_SCORE:INIT,
+                EXECUTABLE_SCORE:INIT
+            }
+        }
+        Eva_dna = {
+            ORIGIN:{'kp':0.8,'ki':0.0001,'kd':1.5},
+            BEHAVE:{
+                STATIC_SCORE:INIT,
+                EXECUTABLE_SCORE:INIT
+            }
+        }
         self.GA.population_pool.append(Eva_dna)
-        # self.GA.init_dna(Adam_dna)
+        self.benchmark = BenchMark()
+        self.PID.set_limit(max_err=180.0, max_out=100.0)
+        self.GA.init_dna(Adam_dna,self.PID.max_params)
 
     def get_score(self):
         self.current_score = self.tune_pid()

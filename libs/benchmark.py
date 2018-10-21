@@ -33,6 +33,7 @@ class BenchMark:
 
     def clear(self,set_data = SET_DATA,init_data = INIT_DATA):
         self.datas = []
+        self.peak = 0
         self.set_data = set_data
         self.init_data = init_data
         self.expect_action_type = PASSBY_UP if set_data - init_data > 0 else PASSBY_DOWN
@@ -41,6 +42,8 @@ class BenchMark:
         self.sum_val = 0
         self.avg = 0
         self.sum_static_val = 0
+        self.offset_execute = 0
+        self.after_execute_len = 0
 
     # # offline means stop the machine than analyze data from database
     #   it should run on the server
@@ -51,24 +54,39 @@ class BenchMark:
     def online_update(self,data):
         self.prepare(data)
         self.datas.append(data)
-        self.lazy_sum(data)
-        self.lazy_avg(data)
+        if not self.check_time():
+            self.after_execute_len = len(self.datas) - self.offset_execute + 1
+            self.lazy_sum(data)
+            self.lazy_avg(data)
 
     def lazy_sum(self, data):
         self.sum_val += data
 
     def lazy_avg(self,data):
-        self.avg = self.sum_val / len(self.datas)
+        self.avg = self.sum_val / self.after_execute_len
         self.sum_static_val += (data - self.avg)**2
 
+    def check_time(self):
+        return not self.time_check_flags[REACT] or not self.time_check_flags[RESPONESE]
+
+    def get_peak(self,data):
+        if self.expect_action_type == PASSBY_UP:
+            self.peak = self.peak if data < self.peak else data
+        else:
+            self.peak = self.peak if data > self.peak else data
 
     def prepare(self,data):
         is_ready = False
-        if not self.time_check_flags[REACT] or not self.time_check_flags[RESPONESE]:
+        if self.check_time():
             where_is = self.check_pass_set_data(data)
-            if self.expect_action_type == where_is:
+            self.get_peak(data)
+            if not self.time_check_flags[REACT] and self.expect_action_type == where_is:
+                self.react_rough_time = time.time() - self.online_rough_time
+                self.online_rough_time = time.time()
                 self.time_check_flags[REACT] = True
             elif self.time_check_flags[REACT]:
+                self.offset_execute = len(self.datas)
+                self.response_rough_time = time.time() - self.online_rough_time
                 self.time_check_flags[RESPONESE] = True
         else:
             is_ready = True
@@ -76,27 +94,37 @@ class BenchMark:
 
     def check_pass_set_data(self,data):
         l = len(self.datas)
+        if l < 2:
+            return
         pre_data = self.datas[l-1]
-        check1 = pre_data - set_data
-        check2 = data - set_data
+        check1 = pre_data - self.set_data
+        check2 = data - self.set_data
         passby = False
-        if check1 =< 0 =< check2:
+        if check1 <= 0 <= check2:
             passby = PASSBY_UP
-        elif check2 =< 0 =< check1:
+        elif check2 <= 0 <= check1:
             passby = PASSBY_DOWN
         return passby
 
     # online judge
+    # 越大越好
     def get_static_score(self):
-        stable = self.sum_static_val / len(self.datas) * 1.0
-        static_score = 1 / (1 + pick*stable) * 1.0
+        static_score = 0
+        if not self.check_time():
+            stable = self.sum_static_val / self.after_execute_len * 1.0
+            static_score = 1.0 / (1 + abs(self.peak-self.set_data) + stable)
         return static_score
 
-    def get_executable_score(self):
-        pass
 
-    def get_dynamic_stable_score(self):
-        pass
+    def get_executable_score(self):
+        executable_score = 0
+        if not self.check_time():
+            executable_score = self.react_rough_time + self.response_rough_time
+        return executable_score
+
+
+    # def get_dynamic_stable_score(self):
+    #     pass
 
     def banch_settings(self):
         pass

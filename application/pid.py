@@ -14,13 +14,13 @@ class PID:
         self.p_err      = INIT
         self.sum_err    = INIT
         self.max_ki     = MAX_KI
+        self.max_params = {}
 
     def tune(self, pid, bias=0):
         kp, ki, kd = pid['kp'],pid['ki'],pid['kd']
         self.kp = self.limit(kp, self.max_kp)
         self.ki = self.limit(ki, self.max_ki)
         self.kd = self.limit(kd, self.max_kd)
-        print self.get(),self.get_max()
         self.bias = bias
 
     def get(self):
@@ -34,6 +34,13 @@ class PID:
         self.max_kp = max_out * 2 / max_err
         self.max_kd = self.max_kp * 2
         self.max_sum_err = max_err * 5
+        self.max_params = {
+            'out':self.max_out,
+            'kp':self.max_kp,
+            'kd':self.max_kd,
+            'ki':MAX_KI,
+            'sum_err':self.max_params
+        }
 
     def get_result(self, err):
         p = self.kp*err
