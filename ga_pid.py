@@ -10,10 +10,24 @@ class GAPID:
         self.PID = PID()
         self.graph = Graph()
         # give two possible pid value to optimize GA
-        Adam_dna = {}
-        Eva_dna = {}
+        Adam_dna = {
+            ORIGIN:{'kp':0.4,'ki':0.0001,'kd':1.0},
+            BEHAVE:{
+                STATIC_SCORE:INIT,
+                EXECUTABLE_SCORE:INIT
+            }
+        }
+        Eva_dna = {
+            ORIGIN:{'kp':0.8,'ki':0.0001,'kd':1.5},
+            BEHAVE:{
+                STATIC_SCORE:INIT,
+                EXECUTABLE_SCORE:INIT
+            }
+        }
         self.GA.population_pool.append(Eva_dna)
-        # self.GA.init_dna(Adam_dna)
+        self.benchmark = BenchMark()
+        self.PID.set_limit(max_err=180.0, max_out=100.0)
+        self.GA.init_dna(Adam_dna,self.PID.max_params)
 
     def get_score(self):
         self.current_score = self.tune_pid()
@@ -29,17 +43,26 @@ class GAPID:
         self.PID.clear()
         self.PID.set_limit(max_err=180.0, max_out=100.0)
         self.PID.tune(pid)
-        print self.PID.get()
         self.angle = 0
         self.preangle = 0
         self.v = 0
         self.angle_set = 90
+        self.init_bench()
 
+    def init_bench(self):
+        self.benchmark.clear(self.angle_set,self.angle)
+
+    def bench_run(self,data):
+        self.benchmark.online_update(data)
+        self.GA.dna[BEHAVE][STATIC_SCORE] = self.benchmark.get_static_score()
+        self.GA.dna[BEHAVE][EXECUTABLE_SCORE] = self.benchmark.get_executable_score()
 
     def pid_test(self, dt, k):
         err = self.angle_set - self.angle
         out = self.PID.run(err)
         self.angle += sim(self.v, out, dt, set_val=self.angle_set)
+
+        self.bench_run(self.angle)
         self.v = self.angle - self.preangle
         self.preangle = self.angle
 
@@ -47,23 +70,37 @@ class GAPID:
             self.angle = 0
         elif self.angle > 180:
             self.angle = 180
-        return self.angle,out
+        return self.angle, out
 
     def run_test(self):
         datas = []
-        for j in range(6,9):
+        for j in range(0,1000):
             lx,ly = [],[]
-            kp = j*0.1
-            self.init_test({'kp':0.6,'ki':0.0001,'kd':2.0})
+            print j,' --------------'
+            print self.GA.dna[ORIGIN]
+            self.init_test(self.GA.dna[ORIGIN])
             for i in range(500):
                 cache_out = self.pid_test(0.01, k)
                 # print i,cache_out
                 lx.append(i)
                 ly.append(cache_out[0])
-            datas.append([lx,ly,str(kp)])
+            datas.append([lx,ly,str(self.GA.dna)])
+            print self.GA.dna[BEHAVE]
+            self.GA.run()
 
-        print self.PID.get()
-        print self.PID.get_max()
+        datas = []
+
+        for dna in self.GA.population_pool:
+            lx,ly = [],[]
+            self.init_test(dna[ORIGIN])
+            for i in range(500):
+                cache_out = self.pid_test(0.01, k)
+                # print i,cache_out
+                lx.append(i)
+                ly.append(cache_out[0])
+            datas.append([lx,ly,str(dna)])
+
+
         self.graph.draw(datas)
 
 ga_pid = GAPID()
