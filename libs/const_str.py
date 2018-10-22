@@ -61,5 +61,5 @@ REACT = 'react'
 RESPONESE = 'response'
 
 ## adjust
-SET_DATA = 0
+SET_DATA = 90
 INIT_DATA = 0

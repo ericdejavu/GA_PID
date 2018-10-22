@@ -1,9 +1,16 @@
 # -*- coding:utf-8 -*-
 import json,MySQLdb
 
+
+
+
 # data is important so no deletetion and update
 class DataRecord:
-    def __init__(self,dna):
+    def __init__(self,data_record_switch=False):
+        self.data_record_switch = data_record_switchs
+
+
+    def dynamic_create_columns(self):
         self.columns = dna.keys()
         with open('private/mysql.json') as f:
             json.dump(sqli,f)
@@ -23,10 +30,15 @@ class DataRecord:
             self.db.commit()
 
 
+    def record_switch(self,status=False):
+        self.data_record_switch = status
+
     def __del__(self):
         self.db.close()
 
     def save(self,dna):
+        if not self.data_record_switch:
+            return
         try:
             save_body_keys = ', '.join([column for column in self.columns])[:-2]
             save_body_values = ', '.join([str(value) for dna[column] in self.columns])[:-2]
@@ -35,3 +47,6 @@ class DataRecord:
             self.db.commit()
         except:
             print '[-] db is not init'
+
+    def upload_to_server(self):
+        pass

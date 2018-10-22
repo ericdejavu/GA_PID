@@ -11,14 +11,14 @@ class GAPID:
         self.graph = Graph()
         # give two possible pid value to optimize GA
         Adam_dna = {
-            ORIGIN:{'kp':0.4,'ki':0.0001,'kd':1.0},
+            ORIGIN:{'kp':0.02,'ki':0.0008,'kd':0.01},
             BEHAVE:{
                 STATIC_SCORE:INIT,
                 EXECUTABLE_SCORE:INIT
             }
         }
         Eva_dna = {
-            ORIGIN:{'kp':0.8,'ki':0.0001,'kd':1.5},
+            ORIGIN:{'kp':0.1,'ki':0.0001,'kd':0.2},
             BEHAVE:{
                 STATIC_SCORE:INIT,
                 EXECUTABLE_SCORE:INIT
@@ -32,7 +32,6 @@ class GAPID:
     def get_score(self):
         self.current_score = self.tune_pid()
         # get score from hardware
-        pass
 
     def tune_pid(self):
         pid = self.GA.run()
@@ -46,7 +45,7 @@ class GAPID:
         self.angle = 0
         self.preangle = 0
         self.v = 0
-        self.angle_set = 90
+        self.angle_set = SET_DATA
         self.init_bench()
 
     def init_bench(self):
@@ -77,19 +76,14 @@ class GAPID:
         return self.angle, out
 
     def run_test(self):
-        datas = []
-        for j in range(200):
-            lx,ly = [],[]
+        for j in range(100):
             # print j,' --------------'
             # print self.GA.dna[ORIGIN]
             self.init_test(self.GA.dna[ORIGIN])
             for i in range(500):
                 cache_out = self.pid_test(0.01, k)
                 # print i,cache_out
-                lx.append(i)
-                ly.append(cache_out[0])
             self.bench_score()
-            datas.append([lx,ly,str(self.GA.dna)])
             self.GA.run()
 
         datas = []
@@ -102,7 +96,7 @@ class GAPID:
                 # print i,cache_out
                 lx.append(i)
                 ly.append(cache_out[0])
-            datas.append([lx,ly,str(dna)])
+            datas.append([lx,ly,""])
         print '-- len --:',len(datas)
 
         self.graph.draw(datas)
