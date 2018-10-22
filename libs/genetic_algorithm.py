@@ -11,9 +11,9 @@ class GeneticAlgorithm:
         self.dna                = {
             ORIGIN: {},
             BEHAVE: {
-                STATIC_SCORE:self.score,
-                EXECUTABLE_SCORE:self.score,
-                DYNAMIC_STABLE_SCORE:self.score
+                STATIC_SCORE:INIT,
+                EXECUTABLE_SCORE:INIT,
+                DYNAMIC_STABLE_SCORE:INIT
             }
         }
         self.max_params         = {}
@@ -44,6 +44,8 @@ class GeneticAlgorithm:
 
     def next_generation(self):
         if len(self.population_pool) >= 1:
+            copy_dna = copy.deepcopy(self.dna)
+            self.population_pool.append(copy_dna)
             while True:
                 mother = random.choice(self.population_pool)
                 father = copy.deepcopy(self.dna)
@@ -55,8 +57,12 @@ class GeneticAlgorithm:
                     self.mutant()
                 for key in self.dna[ORIGIN].keys():
                     if self.dna[ORIGIN][key] != father[ORIGIN][key]:
-                        self.population_pool.append(copy.deepcopy(self.dna))
-                        print 'next_generation:',self.dna[ORIGIN]
+                        self.dna[BEHAVE] = {
+                            STATIC_SCORE:INIT,
+                            EXECUTABLE_SCORE:INIT,
+                            DYNAMIC_STABLE_SCORE:INIT
+                        }
+                        # print 'next_generation:',self.dna[ORIGIN]
                         return
 
     # act as tcp control
@@ -87,11 +93,11 @@ class GeneticAlgorithm:
     def reaper(self):
         # self.data_record.save(self.dna)
         # sorted(self.population_pool,lambda x,y:cmp(x[BEHAVE][EXECUTABLE_SCORE],y[BEHAVE][EXECUTABLE_SCORE]))
-        print 'tense_score:',self.tense_score
+        # print 'tense_score:',self.tense_score
         # print self.population_pool
         for dna in self.population_pool[:]:
             if dna[BEHAVE][STATIC_SCORE] < self.tense_score and len(self.population_pool) > MIN_POPULATION:
-                print 'STATIC_SCORE:',dna[BEHAVE][STATIC_SCORE]
+                # print 'STATIC_SCORE:',dna[BEHAVE][STATIC_SCORE]
                 self.population_pool.remove(dna)
 
         dna_pool = [population[ORIGIN] for population in self.population_pool]
@@ -99,17 +105,17 @@ class GeneticAlgorithm:
         for dna in self.population_pool[:]:
             dna_pool.pop()
             if dna[ORIGIN] in dna_pool:
-                print 'pool:',dna_pool
-                print 'population_pool:',self.population_pool
-                print 'ORIGIN:',dna[ORIGIN]
+                # print 'pool:',dna_pool
+                # print 'population_pool:',self.population_pool
+                # print 'ORIGIN:',dna[ORIGIN]
                 self.population_pool.remove(dna)
 
-        print '-- len -- :',len(self.population_pool)
+        # print '-- len -- :',len(self.population_pool)
         self.waterfall(CONST_K)
 
 
 
     def run(self):
-        self.next_generation()
         self.reaper()
+        self.next_generation()
         return self.dna

@@ -54,8 +54,12 @@ class GAPID:
 
     def bench_run(self,data):
         self.benchmark.online_update(data)
+
+    def bench_score(self):
         self.GA.dna[BEHAVE][STATIC_SCORE] = self.benchmark.get_static_score()
         self.GA.dna[BEHAVE][EXECUTABLE_SCORE] = self.benchmark.get_executable_score()
+        if self.GA.dna[BEHAVE][STATIC_SCORE] > 0.0001 and self.GA.dna[ORIGIN]['kd'] < 0:
+            self.benchmark.print_bench()
 
     def pid_test(self, dt, k):
         err = self.angle_set - self.angle
@@ -74,18 +78,18 @@ class GAPID:
 
     def run_test(self):
         datas = []
-        for j in range(20):
+        for j in range(200):
             lx,ly = [],[]
-            print j,' --------------'
-            print self.GA.dna[ORIGIN]
+            # print j,' --------------'
+            # print self.GA.dna[ORIGIN]
             self.init_test(self.GA.dna[ORIGIN])
             for i in range(500):
                 cache_out = self.pid_test(0.01, k)
                 # print i,cache_out
                 lx.append(i)
                 ly.append(cache_out[0])
+            self.bench_score()
             datas.append([lx,ly,str(self.GA.dna)])
-            print self.GA.dna[BEHAVE]
             self.GA.run()
 
         datas = []
@@ -99,7 +103,7 @@ class GAPID:
                 lx.append(i)
                 ly.append(cache_out[0])
             datas.append([lx,ly,str(dna)])
-
+        print '-- len --:',len(datas)
 
         self.graph.draw(datas)
 
