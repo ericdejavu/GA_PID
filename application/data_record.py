@@ -6,11 +6,10 @@ class DataRecord:
     def __init__(self,dna):
         self.columns = dna.keys()
         with open('private/mysql.json') as f:
-            json.dump(sqli,f)
+            sqli = json.loads(f)
         self.db = MySQLdb.connect(sqli['host'],sqli['user'],sqli['passwd'],sqli['db'],charset=sqli['charset'])
         self.cursor = db.cursor()
-        self.update_project_group()
-        self.update_pid_group()
+        self.update_from_json()
 
     def dynamic_create_table(self):
         create_table_body = ', '.join([column + COLUMN_TYPE for column in columns])
@@ -30,25 +29,14 @@ class DataRecord:
     def __del__(self):
         self.db.close()
 
-    def update_project_group(self):
-        with open() as f:
-            json.dump()
-        self.project_group =
+    def update_from_json(self):
+        with open('config/params.json') as f:
+            params = json.loads(f)
+        self.project_group = params.project_group
+        self.pid_group = params.pid_group
+        self.sub_group_sequence = params.sub_group_sequence
+        self.continue_group_sequence = params.continue_group_sequence
 
-    def update_pid_group(self):
-        with open() as f:
-            json.dump()
-        self.pid_group =
-
-    def update_sub_group_sequence(self):
-        with open() as f:
-            json.dump()
-        self.sub_group_sequence =
-
-    def update_continue_group_sequence(self):
-        with open() as f:
-            json.dump()
-        self.continue_group_sequence =
 
     def insert_id(self):
         self.db.insert_id()

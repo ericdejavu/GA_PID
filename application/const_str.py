@@ -77,3 +77,15 @@ RESPONESE = 'response'
 ## adjust
 SET_DATA = 0
 INIT_DATA = 0
+
+
+# Postboy
+BASE_URL = 'http://localhost:8080/'
+
+ORIGIN_ADDR = 'origin'
+MEASURE_ADDR = 'measure'
+ANALYZE_ADDR = 'analyze'
+
+NOTIFY_ADDR = 'notify'
+
+## adjust
