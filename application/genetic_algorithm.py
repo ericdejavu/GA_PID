@@ -1,22 +1,13 @@
 # -*- coding:utf-8 -*-
 from const_str import *
 import random,data_record
-import copy
 
 class GeneticAlgorithm:
     def __init__(self):
         self.population_pool    = []
         self.max_population     = MAX_POPULATION
+        self.dna                = {}
         self.score              = INIT
-        self.dna                = {
-            ORIGIN: {},
-            BEHAVE: {
-                STATIC_SCORE:INIT,
-                EXECUTABLE_SCORE:INIT,
-                DYNAMIC_STABLE_SCORE:INIT
-            }
-        }
-        self.max_params         = {}
         self.mutantion          = INIT
         self.tense_score        = TENSE_SCORE
         self.generation_count   = INIT
@@ -25,45 +16,25 @@ class GeneticAlgorithm:
         self.tickets            = {'waterfall_cnt':INIT}
 
     # call before run function blow
-    def init_dna(self,dna,max_params):
+    def init_dna(self,dna):
         self.dna = dna
-        self.max_params = max_params
-        # self.data_record = data_record.DataRecord(dna)
-
-    def random_mutante(self):
-        return random.choice(self.dna[ORIGIN].keys())
+        self.data_record = data_record.DataRecord(dna)
 
     def mutant(self):
-        origin_param = self.random_mutante()
-        self.mutantion = random.uniform(-self.max_params[origin_param],self.max_params[origin_param])
-        if self.dna[ORIGIN][origin_param] < 0:
-            self.dna[ORIGIN][origin_param] += abs(self.mutantion)
-        else:
-            self.dna[ORIGIN][origin_param] += self.mutantion
+        self.mutantion = random.uniform(-2,2)
+        random.choice(self.dna) += self.mutantion
 
 
     def next_generation(self):
         if len(self.population_pool) >= 1:
-            copy_dna = copy.deepcopy(self.dna)
-            self.population_pool.append(copy_dna)
-            while True:
-                mother = random.choice(self.population_pool)
-                father = copy.deepcopy(self.dna)
-                parent = [mother,father]
-                for key in self.dna[ORIGIN].keys():
-                    self.dna[ORIGIN][key] = random.choice(parent)[ORIGIN][key]
-                self.generation_count += 1
-                if random.random() < MUTANT_RATE:
-                    self.mutant()
-                for key in self.dna[ORIGIN].keys():
-                    if self.dna[ORIGIN][key] != father[ORIGIN][key]:
-                        self.dna[BEHAVE] = {
-                            STATIC_SCORE:INIT,
-                            EXECUTABLE_SCORE:INIT,
-                            DYNAMIC_STABLE_SCORE:INIT
-                        }
-                        # print 'next_generation:',self.dna[ORIGIN]
-                        return
+            mother = random.choice(self.population_pool)
+            parent = [mother,self.dna]
+            population_pool.append(self.dna)
+            for key in self.dna.keys():
+                self.dna[key] = random.choice(parent)[key]
+        self.generation_count += 1
+        if random.random() < MUTANT_RATE:
+            self.mutant()
 
     # act as tcp control
     def waterfall(self,k):
@@ -72,9 +43,9 @@ class GeneticAlgorithm:
                 self.grow_mode = EXPONENTIAL_GROWTH
 
             if self.grow_mode == LINEAR_INC:
-                self.tense_score +=  k * TENSE_SCORE
-            elif self.grow_mode == EXPONENTIAL_GROWTH:
-                self.tense_score -= TENSE_SCORE**(1/k)
+                self.tense_score += k*TENSE_SCORE
+            elif self.grow_mode = EXPONENTIAL_GROWTH:
+                self.tense_score += TENSE_SCORE**(1/k)
 
             if self.tense_score > MAX_SCORE:
                 self.tense_score = MAX_SCORE
@@ -86,36 +57,20 @@ class GeneticAlgorithm:
                 self.tickets['waterfall_cnt'] = INIT
 
             self.tickets['waterfall_cnt'] += WATERFALL_INC
-            if self.tense_score > NORMAL_TENSE_SCORE:
-                self.tense_score = NORMAL_TENSE_SCORE
 
 
     def reaper(self):
-        # self.data_record.save(self.dna)
-        # sorted(self.population_pool,lambda x,y:cmp(x[BEHAVE][EXECUTABLE_SCORE],y[BEHAVE][EXECUTABLE_SCORE]))
-        # print 'tense_score:',self.tense_score
-        # print self.population_pool
-        for dna in self.population_pool[:]:
-            if dna[BEHAVE][STATIC_SCORE] < self.tense_score and len(self.population_pool) > MIN_POPULATION:
-                # print 'STATIC_SCORE:',dna[BEHAVE][STATIC_SCORE]
-                self.population_pool.remove(dna)
-
-        dna_pool = [population[ORIGIN] for population in self.population_pool]
-        dna_pool.reverse()
-        for dna in self.population_pool[:]:
-            dna_pool.pop()
-            if dna[ORIGIN] in dna_pool:
-                # print 'pool:',dna_pool
-                # print 'population_pool:',self.population_pool
-                # print 'ORIGIN:',dna[ORIGIN]
-                self.population_pool.remove(dna)
-
-        # print '-- len -- :',len(self.population_pool)
+        self.data_record.save(self.dna)
+        sorted(self.population_pool,lambda x,y:cmp(x['score'],y['score']))
+        for i,dna in enumerate(self.population_pool[:]):
+            if dna['score'] < self.tense_score:
+                self.population_pool = self.population_pool[:i]
+                break
         self.waterfall(CONST_K)
 
 
 
     def run(self):
-        self.reaper()
         self.next_generation()
+        self.reaper()
         return self.dna
