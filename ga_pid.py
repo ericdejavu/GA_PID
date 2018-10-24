@@ -77,6 +77,7 @@ class GAPID:
         return self.angle, out
 
     def run_test(self):
+        print 'run benchmark ...'
         datas = []
         for j in range(200):
             lx,ly = [],[]
@@ -102,8 +103,8 @@ class GAPID:
                 # print i,cache_out
                 lx.append(i)
                 ly.append(cache_out[0])
-            datas.append([lx,ly,str(dna)])
-        print '-- len --:',len(datas)
+            datas.append([lx,ly,""])
+        print '-- alive population_pool size --:',len(datas)
 
         self.graph.draw(datas)
 
