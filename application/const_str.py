@@ -64,7 +64,7 @@ INSERT_ORIGIN = 'insert into '+ORIGIN_TABLE_NAME+' (project_group,pid_group,p,i,
 INSERT_MEASURE = 'insert into '+MEASURE_TABLE_NAME+' (group_sequence,continue_group_sequence,sub_group_sequence,turn_angle,light_trigger) values ({},{},{},{}, {},{});'
 INSERT_ANALYSE = 'insert into '+ANALYSE_TABLE_NAME+' (group_sequence,sub_group_sequence,first_react_delta_time,first_response_delta_time,peak,stable) values ({},{},{},{}, {},{},{},{});'
 
-UPDATE_ORIGIN = 'update '++'where id={}'
+UPDATE_ORIGIN = 'update '+ORIGIN_TABLE_NAME+'where id={}'
 
 DEFALUT_GEN_PROJECT_GROUP = 0
 
@@ -75,7 +75,7 @@ REACT = 'react'
 RESPONESE = 'response'
 
 ## adjust
-SET_DATA = 0
+SET_DATA = 90
 INIT_DATA = 0
 
 

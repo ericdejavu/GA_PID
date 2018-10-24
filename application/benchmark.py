@@ -44,12 +44,28 @@ class BenchMark:
         self.sum_static_val = 0
         self.offset_execute = 0
         self.after_execute_len = 0
+        self.static_score = 0
+        self.stable = 0
+
+    def print_bench(self):
+        print 'peak:',self.peak
+        print 'set_data:',self.set_data
+        print 'init_data:',self.init_data
+        print 'expect_action_type:',self.expect_action_type
+        print 'online_rough_time:',self.online_rough_time
+        print 'time_check_flags:',self.time_check_flags
+        print 'sum_val:',self.sum_val
+        print 'avg:',self.avg
+        print 'sum_static_val:',self.sum_static_val
+        print 'offset_execute:',self.offset_execute
+        print 'after_execute_len:',self.after_execute_len
+        print 'self.stable:',self.stable
+        print 'self.static_score:',self.static_score
 
     # # offline means stop the machine than analyze data from database
     #   it should run on the server
     # def offline_analyze(self):
     #     pass
-
     # online judge process task like highly unstable or slow movement
     def online_update(self,data):
         self.prepare(data)
@@ -109,11 +125,11 @@ class BenchMark:
     # online judge
     # 越大越好
     def get_static_score(self):
-        static_score = 0
+        self.static_score = 0
         if not self.check_time():
-            stable = self.sum_static_val / self.after_execute_len * 1.0
-            static_score = 1.0 / (1 + abs(self.peak-self.set_data) + stable)
-        return static_score
+            self.stable = self.sum_static_val / self.after_execute_len * 1.0
+            self.static_score = 1.0 / (1 + abs(self.peak-self.set_data) + self.stable)
+        return self.static_score
 
 
     def get_executable_score(self):
