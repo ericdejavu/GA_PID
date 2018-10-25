@@ -57,22 +57,35 @@ GET_PROJECT_DATA = 'select * from pid_origin where project_group={} and pid_grou
 PROJECT_TABLE_NAME = 'project_pid'
 ORIGIN_TABLE_NAME = 'origin_pid'
 MEASURE_TABLE_NAME = 'measure_pid'
-ANALYSE_TABLE_NAME = 'analyze_pid'
+ANALYSE_TABLE_NAME = 'analyse_pid'
 
 INSERT_PROJECT = 'insert into '+PROJECT_TABLE_NAME+' (name,component_group_name,component_name) values ({},{},{});'
-INSERT_ORIGIN = 'insert into '+ORIGIN_TABLE_NAME+' (project_group,pid_group,p,i,d,max_pid_out) values ({},{},{},{}, {},{},{},{});'
-INSERT_MEASURE = 'insert into '+MEASURE_TABLE_NAME+' (group_sequence,continue_group_sequence,sub_group_sequence,turn_angle,light_trigger) values ({},{},{},{}, {},{});'
-INSERT_ANALYSE = 'insert into '+ANALYSE_TABLE_NAME+' (group_sequence,sub_group_sequence,first_react_delta_time,first_response_delta_time,peak,stable) values ({},{},{},{}, {},{},{},{});'
+INSERT_ORIGIN = 'insert into '+ORIGIN_TABLE_NAME+' (project_group,pid_group,p,i,d,max_pid_out) values ({},{},{},{}, {},{});'
+INSERT_MEASURE = 'insert into '+MEASURE_TABLE_NAME+' (group_sequence,continue_group_sequence,sub_group_sequence,turn_angle,light_trigger_angle) values ({},{},{},{}, {});'
+INSERT_ANALYSE = 'insert into '+ANALYSE_TABLE_NAME+' (group_sequence,sub_group_sequence,first_react_delta_time,first_response_delta_time,executable_score,peak,stable) values ({},{},{},{}, {},{},{});'
 
-UPDATE_ORIGIN = 'update '+ORIGIN_TABLE_NAME+'where id={}'
+UPDATE_ORIGIN = 'update '+ORIGIN_TABLE_NAME+' set alive={} , force_break={} where id={};'
 
 DEFALUT_GEN_PROJECT_GROUP = 0
+
+PROJECT_GROUP = "project_group"
+PID_GROUP = "pid_group"
+SUB_GROUP_SEQUENCE = "sub_group_sequence"
+CONTINUE_GROUP_SEQUENCE = "continue_group_sequence"
+
+ADD = 'add'
+DB_INIT = 1
 
 # BenchMark
 PASSBY_UP = 1
 PASSBY_DOWN = 2
 REACT = 'react'
 RESPONESE = 'response'
+
+FIRST_REACT_DELTA_TIME = 'first_react_delta_time'
+FIRST_RESPONSE_DELTA_TIME = 'first_response_delta_time'
+PEAK = 'peak'
+STABLE = 'stable'
 
 ## adjust
 SET_DATA = 90

@@ -1,7 +1,8 @@
 # -*- coding:utf-8 -*-
 from const_str import *
 import random
-import copy
+import copy,time
+from data_record import DataRecord
 
 class GeneticAlgorithm:
     def __init__(self):
@@ -24,12 +25,14 @@ class GeneticAlgorithm:
         self.control_mode       = TCP_CONGESTION_CONTROL
         self.grow_mode          = LINEAR_INC
         self.tickets            = {'waterfall_cnt':INIT}
+        self.db = DataRecord()
 
     # call before run function blow
     def init_dna(self,dna,max_params):
         self.dna = dna
         self.max_params = max_params
-        # self.data_record = data_record.DataRecord(dna)
+# db opt
+        self.dna[DB_ID] = self.db.save_origin(dna[ORIGIN])
 
     def random_mutante(self):
         return random.choice(self.dna[ORIGIN].keys())
@@ -63,6 +66,8 @@ class GeneticAlgorithm:
                             EXECUTABLE_SCORE:INIT,
                             DYNAMIC_STABLE_SCORE:INIT
                         }
+# db opt
+                        self.dna[DB_ID] = self.db.save_origin(self.dna[ORIGIN])
                         # print 'next_generation:',self.dna[ORIGIN]
                         return
 
@@ -90,6 +95,10 @@ class GeneticAlgorithm:
             if self.tense_score > NORMAL_TENSE_SCORE:
                 self.tense_score = NORMAL_TENSE_SCORE
 
+    def gone(self,dna):
+# db opt
+        self.db.update_origin({"id":dna[DB_ID], "alive":0, "force_break":0})
+        self.population_pool.remove(dna)
 
     def reaper(self):
         # self.data_record.save(self.dna)
@@ -99,7 +108,7 @@ class GeneticAlgorithm:
         for dna in self.population_pool[:]:
             if dna[BEHAVE][STATIC_SCORE] < self.tense_score and len(self.population_pool) > MIN_POPULATION:
                 # print 'STATIC_SCORE:',dna[BEHAVE][STATIC_SCORE]
-                self.population_pool.remove(dna)
+                self.gone(dna)
 
         dna_pool = [population[ORIGIN] for population in self.population_pool]
         dna_pool.reverse()
@@ -109,7 +118,7 @@ class GeneticAlgorithm:
                 # print 'pool:',dna_pool
                 # print 'population_pool:',self.population_pool
                 # print 'ORIGIN:',dna[ORIGIN]
-                self.population_pool.remove(dna)
+                self.gone(dna)
 
         # print '-- len -- :',len(self.population_pool)
         self.waterfall(CONST_K)

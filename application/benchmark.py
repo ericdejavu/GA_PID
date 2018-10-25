@@ -46,6 +46,8 @@ class BenchMark:
         self.after_execute_len = 0
         self.static_score = 0
         self.stable = 0
+        self.react_rough_time = 0
+        self.response_rough_time = 0
 
     def print_bench(self):
         print 'peak:',self.peak
@@ -85,7 +87,10 @@ class BenchMark:
     def check_time(self):
         return not self.time_check_flags[REACT] or not self.time_check_flags[RESPONESE]
 
-    def get_peak(self,data):
+    def get_peak(self):
+        return self.peak
+
+    def get_peak_internal(self,data):
         if self.expect_action_type == PASSBY_UP:
             self.peak = self.peak if data < self.peak else data
         else:
@@ -95,7 +100,7 @@ class BenchMark:
         is_ready = False
         if self.check_time():
             where_is = self.check_pass_set_data(data)
-            self.get_peak(data)
+            self.get_peak_internal(data)
             if not self.time_check_flags[REACT] and self.expect_action_type == where_is:
                 self.react_rough_time = time.time() - self.online_rough_time
                 self.online_rough_time = time.time()
@@ -122,6 +127,11 @@ class BenchMark:
             passby = PASSBY_DOWN
         return passby
 
+    def get_react_time(self):
+        return self.react_rough_time
+
+    def get_response_time(self):
+        return self.response_rough_time
     # online judge
     # 越大越好
     def get_static_score(self):

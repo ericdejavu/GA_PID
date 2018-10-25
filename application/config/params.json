@@ -1,7 +1,1 @@
-{
-    "bench_sequence":1,
-    "project_group":1,
-    "pid_group":1,
-    "sub_group_sequence":1,
-    "continue_group_sequence":1,
-}
+{"pid_group": 1001, "sub_group_sequence": 1, "continue_group_sequence": 1, "project_group": 1}
