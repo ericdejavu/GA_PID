@@ -78,6 +78,8 @@ class GAPID:
 
     def run_test(self):
         print 'run benchmark ...'
+        print 'angle start with 0'
+        print 'set angle 90'
         datas = []
         for j in range(200):
             lx,ly = [],[]
